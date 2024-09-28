@@ -1,5 +1,10 @@
+import os
 import re
+import sqlite3
+import hashlib
 import math
+import shutil
+from datetime import datetime
 
 # 汎用的な変数抽出関数
 def extract_variable(content, start_pattern, value_pattern, group_indices, var_names):
@@ -307,6 +312,75 @@ settings["F7R"]    = data["F7_slit_x_width"]     ["Right"]
 # 結果を表示
 print(settings)
 
+# SQLiteデータベースの接続
+conn = sqlite3.connect('settings.db')
+cursor = conn.cursor()
+
+# 設定テーブルの作成
+cursor.execute('''CREATE TABLE IF NOT EXISTS settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    hash TEXT UNIQUE,
+                    Model TEXT,
+                    Coeff REAL,
+                    Nuclide TEXT,
+                    Intensity REAL,
+                    Symbol TEXT,
+                    A INTEGER,
+                    Z INTEGER,
+                    N INTEGER,
+                    F0Be REAL,
+                    F1t REAL,
+                    F1a REAL,
+                    F5Mat REAL,
+                    F5t REAL,
+                    F5a REAL,
+                    D1_Brho REAL,
+                    D2_Brho REAL,
+                    D3_Brho REAL,
+                    D4_Brho REAL,
+                    D5_Brho REAL,
+                    D6_Brho REAL,
+                    D7_Brho REAL,
+                    D8_Brho REAL
+                )''')
+
+# 設定のハッシュを計算（辞書の内容を文字列化してからハッシュ化）
+settings_str = ''.join(f"{k}:{v}" for k, v in settings.items())
+settings_hash = hashlib.sha256(settings_str.encode()).hexdigest()
+
+# 既存の設定かどうか確認
+cursor.execute("SELECT id FROM settings WHERE hash = ?", (settings_hash,))
+result = cursor.fetchone()
+
+if result is None:
+    # 設定が存在しない場合、新しい設定として保存
+    cursor.execute('''INSERT INTO settings (hash, Model, Coeff, Nuclide, Intensity, Symbol, A, Z, N, F0Be, F1t, F1a, F5Mat, F5t, F5a,
+                                            D1_Brho, D2_Brho, D3_Brho, D4_Brho, D5_Brho, D6_Brho, D7_Brho, D8_Brho)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
+                   (settings_hash, settings["Model"], settings["Coeff"], settings["Nuclide"], settings["Intensity"], 
+                    settings["Symbol"], settings["A"], settings["Z"], settings["N"], settings["F0Be"], 
+                    settings["F1t"], settings["F1a"], settings["F5Mat"], settings["F5t"], settings["F5a"], 
+                    settings["D1_Brho"], settings["D2_Brho"], settings["D3_Brho"], settings["D4_Brho"], 
+                    settings["D5_Brho"], settings["D6_Brho"], settings["D7_Brho"], settings["D8_Brho"]))
+    conn.commit()
+    setting_id = cursor.lastrowid  # 新しいIDを取得
+else:
+    # 既存の設定がある場合、そのIDを取得
+    setting_id = result[0]
+
+# ファイルを指定されたディレクトリに保存
+output_dir = f"./LPP/BigRIPS_NoXX_136Xe_{settings['Symbol']}"
+os.makedirs(output_dir, exist_ok=True)
+output_file_path = os.path.join(output_dir, f"{setting_id}.lpp")
+
+# temp.lppを新しい場所にコピー
+shutil.copy("./LPP/temp.lpp", output_file_path)
+
+print(f"ファイルを {output_file_path} に保存しました。ID: {setting_id}")
+
+# データベースを閉じる
+conn.close()
+
 # Ion Production Rate    : 001 番目 (4.13)
 # X-Section in target    : 005 番目 (4.18e-6)
 # Total Ion Transmission : 007 番目 (6.407)
@@ -340,7 +414,6 @@ isotope = []
 for i in range(len(Isotope)):
     # Isotope[i][0]を除く部分をfloatに変換し、isotopeに追加
     isotope.append([float(value) for value in Isotope[i][1:]])
-
 
 total_sum = sum(row[0] for row in isotope)
 
@@ -376,5 +449,6 @@ for i in range(len(Isotope)):
 # Qratio_F3              : 134 番目 (98.72)
 # Qratio_F5              : 181 番目 (98.17)
 # Unreacted_F5           : 167 番目 (88.71)
+
 
 
