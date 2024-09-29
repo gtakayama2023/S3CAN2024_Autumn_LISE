@@ -58,8 +58,8 @@ def fetch_isotope_data_and_symbols(db_path):
 isotopes_by_setting_id = fetch_isotope_data_and_symbols("./settings.db")
 
 # ヒストグラムを作成する範囲
-Nmin, Nmax = 50, 73  # 中性子数の範囲
-Zmin, Zmax = 35, 45  # 陽子数の範囲
+Nmin, Nmax = 50, 84  # 中性子数の範囲
+Zmin, Zmax = 35, 56  # 陽子数の範囲
 
 # 描画するパラメータのリスト
 parameters = [
@@ -91,6 +91,9 @@ for setting_id, data in isotopes_by_setting_id.items():
 
     # 各パラメータに対応するキャンバスとヒストグラムを生成
     for param_name, canvas_prefix in parameters:
+        if param_name == 'percent1':
+            continue
+
         # キャンバスの名前を動的に作成
         canvas_name = f"{canvas_prefix}"
 
@@ -117,6 +120,7 @@ for setting_id, data in isotopes_by_setting_id.items():
 
         # テキストオブジェクトを保持するリスト
         text_objects = []
+        text_obj2 = []
 
         # 各核種のパラメータ値をヒストグラムに設定
         for isotope in isotopes:
@@ -124,12 +128,13 @@ for setting_id, data in isotopes_by_setting_id.items():
             
             # param_nameに対応するインデックスを取得
             param_value = isotope[param_index_map[param_name]]
+            ratio_value = isotope[param_index_map['percent1']]
             
             if Nmin <= N <= Nmax and Zmin <= Z <= Zmax:
                 h2.SetBinContent(N-Nmin+1, Z-Zmin+1, param_value)
 
                 # 同位体名のテキストを描画
-                latex = TLatex(N, Z, isotope_name)
+                latex = TLatex(N, Z + 0.3, isotope_name)
                 latex.SetTextSize(0.02)
                 latex.SetTextColor(ROOT.kGray+3)
                 latex.SetTextAlign(22)  # 中央揃え
@@ -137,12 +142,26 @@ for setting_id, data in isotopes_by_setting_id.items():
                 text_objects.append(latex)
 
                 # 同位体の param_value を isotope_name の下に表示
-                param_value_text = TLatex(N, Z - 0.3, f"{param_value:.2f}")  # param_valueを表示
+                if param_name == 'Yield': 
+                    param_value_text = TLatex(N, Z - 0.0, f"{param_value:.0f}")  # param_valueを表示
+                elif param_name == 'x_section':
+                    param_value_text = TLatex(N, Z - 0.0, f"{param_value:.0e}")  # param_valueを表示
+                else:
+                    param_value_text = TLatex(N, Z - 0.0, f"{param_value:.2f}")  # param_valueを表示
                 param_value_text.SetTextSize(0.02)
                 param_value_text.SetTextColor(ROOT.kGray+2)
                 param_value_text.SetTextAlign(22)  # 中央揃え
                 param_value_text.Draw()
                 text_objects.append(param_value_text)
+
+                if param_name == 'Yield':
+                    # 同位体の ratio_value を isotope_name の下に表示
+                    param_value_text = TLatex(N, Z - 0.3, f"{ratio_value:.1f} %")  # param_valueを表示
+                    param_value_text.SetTextSize(0.02)
+                    param_value_text.SetTextColor(ROOT.kGray+2)
+                    param_value_text.SetTextAlign(22)  # 中央揃え
+                    param_value_text.Draw()
+                    text_objects.append(param_value_text)
 
                 # グリッド線を描画
                 h2.Draw("COLZ SAME")
@@ -159,6 +178,57 @@ for setting_id, data in isotopes_by_setting_id.items():
 
         # キャンバスをROOTファイルに保存
         c1.Write()
+
+        # Yield に関するヒストグラムの場合、正規化を行う
+        if param_name == "Yield":
+            # 全 bin の合計を取得
+            total_sum = h2.Integral()
+            
+            # 正規化を行い、新しいヒストグラムを作成
+            h2_Yield_Normalized = TH2F(f"h2_Yield_Normalized_{setting_id}", 
+                                        f"Yield (Normalized: {total_sum:.1f} -> 10000) ({symbol} ID: {setting_id});Neutron Number (N);Proton Number (Z)", 
+                                        Nmax-Nmin+1, Nmin-0.5, Nmax+0.5, Zmax-Zmin+1, Zmin-0.5, Zmax+0.5)
+            
+            # 各 bin を 10000 / total_sum で正規化
+            normalization_factor = 10000.0 / total_sum if total_sum > 0 else 0
+            for x in range(1, h2.GetNbinsX() + 1):
+                for y in range(1, h2.GetNbinsY() + 1):
+                    bin_content = h2.GetBinContent(x, y)
+                    h2_Yield_Normalized.SetBinContent(x, y, bin_content * normalization_factor)
+                    N = x + Nmin - 1
+                    Z = y + Zmin - 1
+
+                    # NとZに基づいて同位体情報を取得
+                    for isotope in isotopes:
+                        isotope_Z, isotope_N, isotope_name, yield_value, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit = isotope
+                        if isotope_Z == Z and isotope_N == N:
+                            #print(f'isotope_Z: {isotope_Z}, Z: {Z}')
+                            # 同位体名のテキストを描画
+                            latex = TLatex(N, Z + 0.3, isotope_name)
+                            latex.SetTextSize(0.02)
+                            latex.SetTextColor(ROOT.kGray + 3)
+                            latex.SetTextAlign(22)  # 中央揃え
+                            latex.Draw()
+                            text_obj2.append(latex)
+
+                            # 同位体の param_value を isotope_name の下に表示
+                            param_value_text = TLatex(N, Z - 0.0, f"{bin_content * normalization_factor:.0f}")  # yield_valueを表示
+                            param_value_text.SetTextSize(0.02)
+                            param_value_text.SetTextColor(ROOT.kGray + 2)
+                            param_value_text.SetTextAlign(22)  # 中央揃え
+                            param_value_text.Draw()
+                            text_obj2.append(param_value_text)
+
+            # 正規化ヒストグラムを描画
+            h2_Yield_Normalized.SetStats(1)  # 統計ボックスを表示
+            h2_Yield_Normalized.Draw("COLZ")
+
+            for text in text_obj2:
+                text.Draw()
+            
+            c1.SetGrid(1, 1)
+            c1.RedrawAxis()
+            c1.Write()  # 正規化ヒストグラムも保存
 
     # ROOTファイルを閉じる
     root_file.Close()

@@ -67,7 +67,10 @@ settings_data = cursor.fetchall()
 # モダンなHTMLテーブルのヘッダー
 html_content = generate_html_header("Settings Data")
 html_content += """
-<h2>Settings Data</h2>
+<h2>TRIP-S3CAN 2024 Autumn | LISE++ settings configuration</h2>
+<p style="text-align: center;">
+    <a href="https://docs.google.com/spreadsheets/d/1M_SNlWawUvMURzTSM3Ee6sIytSjhj-jcXCrngcpWuiU/edit?usp=sharing" target="_blank">Google Sheets</a>
+</p>
 <table>
 <tr>
   <th>id</th><th>LPP</th><th>JSROOT</th><th>Model</th><th>Coeff</th><th>Nuclide</th><th>Intensity</th><th>Symbol</th><th>A</th><th>Z</th><th>N</th>
@@ -85,7 +88,7 @@ for row in settings_data:
     symbol_value = row[5]
 
     # ファイルパスを生成
-    file_path = f"~/Desktop/LPP/BigRIPS_NoXX_136Xe_{symbol_value}/{id_value}.lpp"
+    file_path = f"BigRIPS_NoXX_136Xe_{symbol_value}/{id_value}.lpp"
     js_path = f"http://localhost/CGI-BIN/JSROOT/TRIP/S3CAN/2024/AUTUMN/LISE/temp.pl?id={id_value}&symbol={symbol_value}"
 
     # HTML行を追加 (個別のhtmlファイルへのリンクを追加)
