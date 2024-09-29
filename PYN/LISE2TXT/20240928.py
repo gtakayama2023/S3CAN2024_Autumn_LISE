@@ -341,7 +341,29 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS settings (
                     D5_Brho REAL,
                     D6_Brho REAL,
                     D7_Brho REAL,
-                    D8_Brho REAL
+                    D8_Brho REAL,
+                    D1_Energy REAL,
+                    D2_Energy REAL,
+                    D3_Energy REAL,
+                    D4_Energy REAL,
+                    D5_Energy REAL,
+                    D6_Energy REAL,
+                    D7_Energy REAL,
+                    D8_Energy REAL,
+                    DumpL REAL,
+                    DumpR REAL,
+                    F1L REAL, 
+                    F1R REAL, 
+                    F2L REAL, 
+                    F2R REAL, 
+                    F25XL REAL,
+                    F25XR REAL,
+                    F25YL REAL,
+                    F25YR REAL,
+                    F5L REAL, 
+                    F5R REAL, 
+                    F7L REAL, 
+                    F7R REAL 
                 )''')
 
 # 設定のハッシュを計算（辞書の内容を文字列化してからハッシュ化）
@@ -355,13 +377,21 @@ result = cursor.fetchone()
 if result is None:
     # 設定が存在しない場合、新しい設定として保存
     cursor.execute('''INSERT INTO settings (hash, Model, Coeff, Nuclide, Intensity, Symbol, A, Z, N, F0Be, F1t, F1a, F5Mat, F5t, F5a,
-                                            D1_Brho, D2_Brho, D3_Brho, D4_Brho, D5_Brho, D6_Brho, D7_Brho, D8_Brho)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
+                                            D1_Brho, D2_Brho, D3_Brho, D4_Brho, D5_Brho, D6_Brho, D7_Brho, D8_Brho,
+                                            D1_Energy, D2_Energy, D3_Energy, D4_Energy, D5_Energy, D6_Energy, D7_Energy, D8_Energy,
+                                            DumpL, DumpR, F1L, F1R, F2L, F2R, F25XL, F25XR, F25YL, F25YR, F5L, F5R, F7L, F7R
+                                            )
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
                    (settings_hash, settings["Model"], settings["Coeff"], settings["Nuclide"], settings["Intensity"], 
                     settings["Symbol"], settings["A"], settings["Z"], settings["N"], settings["F0Be"], 
                     settings["F1t"], settings["F1a"], settings["F5Mat"], settings["F5t"], settings["F5a"], 
                     settings["D1_Brho"], settings["D2_Brho"], settings["D3_Brho"], settings["D4_Brho"], 
-                    settings["D5_Brho"], settings["D6_Brho"], settings["D7_Brho"], settings["D8_Brho"]))
+                    settings["D5_Brho"], settings["D6_Brho"], settings["D7_Brho"], settings["D8_Brho"],
+                    settings["D1_Energy"], settings["D2_Energy"], settings["D3_Energy"], settings["D4_Energy"],
+                    settings["D5_Energy"], settings["D6_Energy"], settings["D7_Energy"], settings["D8_Energy"],
+                    settings["DumpL"], settings["DumpR"], settings["F1L"], settings["F1R"], settings["F2L"], settings["F2R"],
+                    settings["F2.5XL"], settings["F2.5XR"], settings["F2.5YL"], settings["F2.5YR"], 
+                    settings["F5L"], settings["F5R"], settings["F7L"], settings["F7R"]))
     conn.commit()
     setting_id = cursor.lastrowid  # 新しいIDを取得
 else:
@@ -419,6 +449,33 @@ total_sum = sum(row[0] for row in isotope)
 
 print(total_sum)
 
+# SQLiteにデータを保存するための準備
+conn = sqlite3.connect('settings.db')
+cursor = conn.cursor()
+
+# 同位体情報を保存するためのテーブル作成
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS isotopes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        setting_id INTEGER,
+        isotope_name TEXT,
+        A INTEGER,
+        Z INTEGER,
+        N INTEGER,
+        Yield REAL,
+        percent1 REAL,
+        x_section REAL,
+        Transmission REAL,
+        Transmission_F1slit REAL,
+        Transmission_F2slit REAL,
+        Transmission_F25slit REAL,
+        Transmission_F5slit REAL,
+        Transmission_F7slit REAL,
+        UNIQUE(setting_id, isotope_name)  -- setting_id と isotope_name の組み合わせでユニーク制約を追加
+        FOREIGN KEY (setting_id) REFERENCES settings(id)
+    )
+''')
+
 # 各同位体に対して情報を出力
 for i in range(len(Isotope)):
     isotope_name = Isotope[i][0].split()[0]  # 同位体名を取得
@@ -432,11 +489,45 @@ for i in range(len(Isotope)):
         if Isotope[i][0].split()[j] != first_value:
             equal_values = False
             break  # 等しくない場合、ループを終了
+    if isotope[i][0]/total_sum * 100 < 0.1:
+        equal_values = False
 
     # 値が等しい場合の処理
     if equal_values:
         # 各同位体の情報を表示
         print(f"{isotope_name:>5s}, {A:>3d}, {Z:>2d}, {N:>2d}, {isotope[i][0]:4.1f}, {100 * isotope[i][0]/total_sum:4.1f}, {isotope[i][4]:.1e}, {isotope[i][6]:.1e}, {isotope[i][41]:.1e}, {isotope[i][59]:.1e}, {isotope[i][69]:.1e}, {isotope[i][161]:.1e}, {isotope[i][232]:.1e}, {isotope[i][133]:.2e}, {isotope[i][180]:.2e}, {isotope[i][166]:.2e}")
+
+        # 必要な情報を変数に格納
+        Yield = float(isotope[i][0])
+        percent1 = 100 * Yield / total_sum  # 百分率計算
+        x_section = float(isotope[i][4])
+        Transmission = float(isotope[i][6])
+        Transmission_F1slit = float(isotope[i][41])
+        Transmission_F2slit = float(isotope[i][59])
+        Transmission_F25slit = float(isotope[i][69])
+        Transmission_F5slit = float(isotope[i][161])
+        Transmission_F7slit = float(isotope[i][232])
+
+        # 既存のデータを確認
+        cursor.execute('''
+            SELECT COUNT(*) FROM isotopes 
+            WHERE setting_id = ? AND isotope_name = ?
+        ''', (setting_id, isotope_name))
+        
+        exists = cursor.fetchone()[0] > 0  # データが既に存在するか確認
+        
+        # データが存在しない場合のみ追加
+        if not exists:
+            cursor.execute('''
+                INSERT INTO isotopes (setting_id, isotope_name, A, Z, N, Yield, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (setting_id, isotope_name, A, Z, N, Yield, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit))
+            conn.commit()  # データを保存
+
+# データベースを閉じる
+conn.close()
+
+print("同位体の情報がデータベースに追加されました。")
 
 # Ion Production Rate    : 001 番目 (4.13)
 # X-Section in target    : 005 番目 (4.18e-6)
@@ -449,6 +540,3 @@ for i in range(len(Isotope)):
 # Qratio_F3              : 134 番目 (98.72)
 # Qratio_F5              : 181 番目 (98.17)
 # Unreacted_F5           : 167 番目 (88.71)
-
-
-
