@@ -471,6 +471,9 @@ cursor.execute('''
         Transmission_F25slit REAL,
         Transmission_F5slit REAL,
         Transmission_F7slit REAL,
+        Qratio_F3 REAL,
+        Qratio_F5 REAL,
+        Unreacted_F5 REAL,
         UNIQUE(setting_id, isotope_name)  -- setting_id と isotope_name の組み合わせでユニーク制約を追加
         FOREIGN KEY (setting_id) REFERENCES settings(id)
     )
@@ -507,6 +510,9 @@ for i in range(len(Isotope)):
         Transmission_F25slit = float(isotope[i][69])
         Transmission_F5slit = float(isotope[i][161])
         Transmission_F7slit = float(isotope[i][232])
+        Qratio_F3 = float(isotope[i][133])
+        Qratio_F5 = float(isotope[i][180])
+        Unreacted_F5 = float(isotope[i][166])
 
         # 既存のデータを確認
         cursor.execute('''
@@ -519,9 +525,9 @@ for i in range(len(Isotope)):
         # データが存在しない場合のみ追加
         if not exists:
             cursor.execute('''
-                INSERT INTO isotopes (setting_id, isotope_name, A, Z, N, Yield, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (setting_id, isotope_name, A, Z, N, Yield, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit))
+                INSERT INTO isotopes (setting_id, isotope_name, A, Z, N, Yield, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit, Qratio_F3, Qratio_F5, Unreacted_F5)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (setting_id, isotope_name, A, Z, N, Yield, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit, Qratio_F3, Qratio_F5, Unreacted_F5))
             conn.commit()  # データを保存
 
 # データベースを閉じる

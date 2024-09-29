@@ -114,7 +114,8 @@ for row in settings_data:
     # Isotopeテーブルから該当するsetting_idのデータを取得
     cursor.execute("SELECT id, isotope_name, A, Z, N, Yield, percent1, x_section, "
                    "Transmission, Transmission_F1slit, Transmission_F2slit, "
-                   "Transmission_F25slit, Transmission_F5slit, Transmission_F7slit "
+                   "Transmission_F25slit, Transmission_F5slit, Transmission_F7slit, "
+                   "Qratio_F3, Qratio_F5, Unreacted_F5 "
                    "FROM Isotopes WHERE setting_id = ?", (id_value,))
     isotope_data = cursor.fetchall()
 
@@ -127,6 +128,7 @@ for row in settings_data:
       <th>id</th><th>Isotope Name</th><th>A</th><th>Z</th><th>N</th><th>Yield</th><th>percent1</th><th>x_section</th>
       <th>Transmission</th><th>Transmission_F1slit</th><th>Transmission_F2slit</th>
       <th>Transmission_F25slit</th><th>Transmission_F5slit</th><th>Transmission_F7slit</th>
+      <th>Qratio_F3</th><th>Qratio_F5</th><th>Unreacted_F5</th>
     </tr>
     """
 
@@ -145,6 +147,8 @@ for row in settings_data:
                 isotope_html_content += f"<td>{cell:.2e}</td>" if isinstance(cell, (int, float)) else f"<td>{cell}</td>"
             elif i in range(8, 14):  # Transmission系
                 isotope_html_content += f"<td>{cell:.4f}</td>" if isinstance(cell, (int, float)) else f"<td>{cell}</td>"
+            elif i in range(14, 17):  # Transmission系
+                isotope_html_content += f"<td>{cell*100:.2f}</td>" if isinstance(cell, (int, float)) else f"<td>{cell}</td>"
             # それ以外の列はそのまま
             else:  
                 isotope_html_content += f"<td>{cell}</td>"

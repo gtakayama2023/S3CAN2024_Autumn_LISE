@@ -232,3 +232,14 @@ tab completion not implemented for this context
 [I 2024-09-29 16:08:34.648 ServerApp] Starting buffering for e278bc95-378c-4f0e-8187-b45a95d701f1:92457580-d5c8-4e3b-aa2f-c1ecc7d9b0f5
 [I 2024-09-29 16:08:34.772 ServerApp] Connecting to kernel e278bc95-378c-4f0e-8187-b45a95d701f1.
 [I 2024-09-29 16:08:34.772 ServerApp] Restoring connection for e278bc95-378c-4f0e-8187-b45a95d701f1:92457580-d5c8-4e3b-aa2f-c1ecc7d9b0f5
+[W 2024-09-29 18:03:37.583 ServerApp] 404 GET /local/api/contents/settings.db?content=0&hash=0&1727600617579 (b92afd7a6a214c6085e01d8d0854554f@127.0.0.1) 1.30ms referer=http://localhost:8888/local/doc/tree/GEN/2024/EXP/TRIP/AUTUMN/LISE/JPY/20240927_NuclearChart.ipynb
+[W 2024-09-29 18:03:37.585 ServerApp] 404 GET /local/api/contents/settings.db?content=0&hash=0&1727600617579 (127.0.0.1): No such file or directory: settings.db
+[I 2024-09-29 18:03:57.827 ServerApp] Saving file at /GEN/2024/EXP/TRIP/AUTUMN/LISE/JPY/20240927_NuclearChart.ipynb
+[I 2024-09-29 18:04:15.923 ServerApp] Saving file at /GEN/2024/EXP/TRIP/AUTUMN/LISE/JPY/20240927_NuclearChart.ipynb
+[I 2024-09-29 18:06:16.785 ServerApp] Saving file at /GEN/2024/EXP/TRIP/AUTUMN/LISE/JPY/20240927_NuclearChart.ipynb
+[I 2024-09-29 19:00:49.520 ServerApp] Starting buffering for e278bc95-378c-4f0e-8187-b45a95d701f1:92457580-d5c8-4e3b-aa2f-c1ecc7d9b0f5
+[I 2024-09-29 19:00:49.870 ServerApp] Connecting to kernel e278bc95-378c-4f0e-8187-b45a95d701f1.
+[I 2024-09-29 19:00:49.873 ServerApp] Restoring connection for e278bc95-378c-4f0e-8187-b45a95d701f1:92457580-d5c8-4e3b-aa2f-c1ecc7d9b0f5
+[I 2024-09-29 19:18:15.953 ServerApp] Starting buffering for e278bc95-378c-4f0e-8187-b45a95d701f1:92457580-d5c8-4e3b-aa2f-c1ecc7d9b0f5
+[I 2024-09-29 19:18:16.236 ServerApp] Connecting to kernel e278bc95-378c-4f0e-8187-b45a95d701f1.
+[I 2024-09-29 19:18:16.238 ServerApp] Restoring connection for e278bc95-378c-4f0e-8187-b45a95d701f1:92457580-d5c8-4e3b-aa2f-c1ecc7d9b0f5

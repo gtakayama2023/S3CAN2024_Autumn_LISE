@@ -3,6 +3,9 @@ from datetime import datetime
 import ROOT
 from ROOT import TCanvas, TLatex, TH2F, TFile
 
+# バッチモードを有効にする
+ROOT.gROOT.SetBatch(True)
+
 # データベースから同位体データと設定を取得
 def fetch_isotope_data_and_symbols(db_path):
     conn = sqlite3.connect(db_path)
