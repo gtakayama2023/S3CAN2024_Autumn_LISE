@@ -72,8 +72,20 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
         legend.AddEntry(box, f"{symbol} (ID: {setting_id})", "f")
         boxes.append(box)  # Keep a reference to the box
 
+        yield_sum = 0
+
         for isotope in isotopes:
             Z, N, isotope_name, yield_value, percent1 = isotope
+            yield_sum += yield_value
+
+        for isotope in isotopes:
+            Z, N, isotope_name, yield_value, percent1 = isotope
+            if yield_sum > 10000:
+                yield_normal_factor = 10000 / yield_sum
+            else:
+                yield_normal_factor = 1
+
+            yield_value *= yield_normal_factor
             
             if Nmin <= N <= Nmax and Zmin <= Z <= Zmax:
                 bin_content = h2.GetBinContent(N-Nmin+1, Z-Zmin+1)
@@ -86,7 +98,8 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
                 latex.SetTextAlign(22)
                 text_objects.append(latex)
 
-                yield_text = ROOT.TLatex(N, Z - 0.2, f"{setting_id:.0f}")
+                #yield_text = ROOT.TLatex(N, Z - 0.2, f"{setting_id:.0f}")
+                yield_text = ROOT.TLatex(N, Z - 0.2, f"{yield_value:.0f}")
                 yield_text.SetTextSize(0.015)
                 #yield_text.SetTextColor(ROOT.kBlack)
                 yield_text.SetTextColor(color)
@@ -114,7 +127,7 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
 
 if __name__ == "__main__":
     db_path = "./settings.db"
-    setting_ids = [7, 5, 9, 10, 11, 12, 13, 14, 16]  # 指定された setting_id
+    setting_ids = [2, 3, 5, 6, 7, 8]  # 指定された setting_id
     isotopes_by_setting_id = fetch_isotope_data_and_symbols(db_path, setting_ids)
     
     # 最初の setting_id とそのシンボルを取得

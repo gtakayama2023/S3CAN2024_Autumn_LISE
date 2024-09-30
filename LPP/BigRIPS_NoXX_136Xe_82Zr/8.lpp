@@ -4,7 +4,7 @@ Version 17.0.0
 [general]
                     File = /Users/takayamagen/DOC/G.Takayama/GEN/2024/EXP/TRIP/AUTUMN/LISE/LPP/temp.lpp
                     Date = 01-10-2024
-                    Time = 05:45:23
+                    Time = 05:44:27
            Configuration = C:\Users\inabe\Desktop\laa.lcn
              Optionsfile = A1900_2006.lopt
                    Title = 20240401_Standard-LAA_Other_woCSfile_momOFF_cutNO
@@ -361,7 +361,7 @@ Binding Energy for Vf/Vp = 8                    MeV              ; Binding energ
 [cross sections]
 
 [previous]
-                 Lowerst = 70Br35+                               ; Mass ElementName Charge+ Beam
+                 Lowerst = 70Se34+                               ; Mass ElementName Charge+ Beam
                  Highest = 95Rh45+                               ; Mass ElementName Charge+ Beam
 
 [finger]

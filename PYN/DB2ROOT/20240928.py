@@ -27,6 +27,9 @@ def fetch_isotope_data_and_symbols(db_path):
         I.Transmission_F25slit,
         I.Transmission_F5slit,
         I.Transmission_F7slit,
+        Qratio_F3,
+        Qratio_F5,
+        Unreacted_F5,
         S.Symbol 
     FROM 
         Isotopes I 
@@ -41,14 +44,16 @@ def fetch_isotope_data_and_symbols(db_path):
     for row in cursor.fetchall():
         (setting_id, Z, N, isotope_name, yield_value, percent1, x_section, Transmission, 
          Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, 
-         Transmission_F5slit, Transmission_F7slit, symbol) = row
+         Transmission_F5slit, Transmission_F7slit, 
+         Qratio_F3, Qratio_F5, Unreacted_F5, symbol) = row
         
         if setting_id not in isotopes_by_setting_id:
             isotopes_by_setting_id[setting_id] = {'isotopes': [], 'symbol': symbol}
         isotopes_by_setting_id[setting_id]['isotopes'].append(
             (Z, N, isotope_name, yield_value, percent1, x_section, Transmission, 
              Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, 
-             Transmission_F5slit, Transmission_F7slit)
+             Transmission_F5slit, Transmission_F7slit,
+             Qratio_F3, Qratio_F5, Unreacted_F5)
         )
 
     conn.close()
@@ -71,7 +76,10 @@ parameters = [
     ("Transmission_F2slit", "cTransmission_F2slit"),
     ("Transmission_F25slit", "cTransmission_F25slit"),
     ("Transmission_F5slit", "cTransmission_F5slit"),
-    ("Transmission_F7slit", "cTransmission_F7slit")
+    ("Transmission_F7slit", "cTransmission_F7slit"),
+    ("Qratio_F3", "cQratio_F3"),
+    ("Qratio_F5", "cQratio_F5"),
+    ("Unreacted_F5", "cUnreacted_F5")
 ]
 
 # 各 setting_id に対して個別にROOTファイルを作成
@@ -116,6 +124,9 @@ for setting_id, data in isotopes_by_setting_id.items():
             "Transmission_F25slit": 9,
             "Transmission_F5slit": 10,
             "Transmission_F7slit": 11,
+            "Qratio_F3": 12,
+            "Qratio_F5": 13,
+            "Unreacted_F5": 14
         }
 
         # テキストオブジェクトを保持するリスト
@@ -124,7 +135,7 @@ for setting_id, data in isotopes_by_setting_id.items():
 
         # 各核種のパラメータ値をヒストグラムに設定
         for isotope in isotopes:
-            Z, N, isotope_name, yield_value, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit = isotope
+            Z, N, isotope_name, yield_value, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit, Qratio_F3, Qratio_F5, Unreacted_F5 = isotope
             
             # param_nameに対応するインデックスを取得
             param_value = isotope[param_index_map[param_name]]
@@ -200,7 +211,7 @@ for setting_id, data in isotopes_by_setting_id.items():
 
                     # NとZに基づいて同位体情報を取得
                     for isotope in isotopes:
-                        isotope_Z, isotope_N, isotope_name, yield_value, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit = isotope
+                        isotope_Z, isotope_N, isotope_name, yield_value, percent1, x_section, Transmission, Transmission_F1slit, Transmission_F2slit, Transmission_F25slit, Transmission_F5slit, Transmission_F7slit, Qratio_F3, Qratio_F5, Unrected_F5 = isotope
                         if isotope_Z == Z and isotope_N == N:
                             #print(f'isotope_Z: {isotope_Z}, Z: {Z}')
                             # 同位体名のテキストを描画
