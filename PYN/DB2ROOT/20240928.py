@@ -63,8 +63,8 @@ def fetch_isotope_data_and_symbols(db_path):
 isotopes_by_setting_id = fetch_isotope_data_and_symbols("./settings.db")
 
 # ヒストグラムを作成する範囲
-Nmin, Nmax = 40, 84  # 中性子数の範囲
-Zmin, Zmax = 35, 56  # 陽子数の範囲
+Nmin, Nmax = 20, 100  # 中性子数の範囲
+Zmin, Zmax = 20, 100  # 陽子数の範囲
 
 # 描画するパラメータのリスト
 parameters = [

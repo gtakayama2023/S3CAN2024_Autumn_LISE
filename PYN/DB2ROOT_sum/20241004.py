@@ -69,7 +69,10 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
         box = ROOT.TBox(0, 0, 1, 1)
         box.SetFillColor(color)
         box.SetLineColor(color)
-        legend.AddEntry(box, f"{symbol} (ID: {setting_id})", "f")
+        #legend.AddEntry(box, f"{symbol} (Setting: {i+1})", "f")
+        entry = legend.AddEntry(box, f"{symbol} (Setting: {i+1})", "f")
+        entry.SetTextColor(color)
+
         boxes.append(box)  # Keep a reference to the box
 
         yield_sum = 0
@@ -86,33 +89,55 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
                 yield_normal_factor = 1
 
             yield_value *= yield_normal_factor
+            if yield_value > 50:
             
-            if Nmin <= N <= Nmax and Zmin <= Z <= Zmax:
-                bin_content = h2.GetBinContent(N-Nmin+1, Z-Zmin+1)
-                h2.SetBinContent(N-Nmin+1, Z-Zmin+1, bin_content + 1)
+                if Nmin <= N <= Nmax and Zmin <= Z <= Zmax:
+                    bin_content = h2.GetBinContent(N-Nmin+1, Z-Zmin+1)
+                    h2.SetBinContent(N-Nmin+1, Z-Zmin+1, bin_content + 1)
 
-                #latex = ROOT.TLatex(N, Z + 0.3, isotope_name)
-                latex = ROOT.TLatex(N, Z + 0.3, f"#splitline{{{isotope_name}}}{{{yield_value:.0f}}}")
-                latex.SetTextSize(0.025)
-                #latex.SetTextColor(ROOT.kBlack)
-                latex.SetTextColor(color)
-                latex.SetTextAlign(22)
-                text_objects.append(latex)
+                    #latex = ROOT.TLatex(N, Z + 0.3, isotope_name)
+                    latex = ROOT.TLatex(N, Z + 0.3, f"#splitline{{{isotope_name}}}{{{yield_value * 0.01:.1f} %}}")
+                    latex.SetTextSize(0.025)
+                    #latex.SetTextColor(ROOT.kBlack)
+                    latex.SetTextColor(color)
+                    latex.SetTextAlign(22)
+                    text_objects.append(latex)
 
-                #yield_text = ROOT.TLatex(N, Z - 0.2, f"{setting_id:.0f}")
-                yield_text = ROOT.TLatex(N, Z - 0.2, f"{yield_value:.0f}")
-                yield_text.SetTextSize(0.025)
-                yield_text.SetTextColor(ROOT.kBlack)
-                #yield_text.SetTextColor(color)
-                yield_text.SetTextAlign(22)
-                text_objects.append(yield_text)
+                    #yield_text = ROOT.TLatex(N, Z - 0.2, f"{setting_id:.0f}")
+                    #yield_text = ROOT.TLatex(N, Z - 0.2, f"{yield_value:.0f}")
+                    #yield_text.SetTextSize(0.025)
+                    #yield_text.SetTextColor(ROOT.kBlack)
+                    #yield_text.SetTextColor(color)
+                    #yield_text.SetTextAlign(22)
+                    #text_objects.append(yield_text)
 
     h2.Draw("COLZ")
     for text in text_objects:
         text.Draw()
-    c1.SetGrid(1, 1)
+    #c1.SetGrid(1, 1)
     legend.Draw()
     c1.RedrawAxis()
+
+    # 0.5ごとに平行な線を引くための TLine を用意
+    lines = []
+    
+    # X軸方向の線を引く (Neutron Number に沿って)
+    for i in range(int(Nmin), int(Nmax)+1):
+        x = i + 0.5
+        line = ROOT.TLine(x, Zmin-0.5, x, Zmax+0.5)  # Xに垂直な線 (Y軸方向に線を引く)
+        line.SetLineColor(ROOT.kGray)  # 線の色
+        line.SetLineStyle(2)           # 点線
+        line.Draw()
+        lines.append(line)
+    
+    # Y軸方向の線を引く (Proton Number に沿って)
+    for j in range(int(Zmin), int(Zmax)+1):
+        y = j + 0.5
+        line = ROOT.TLine(Nmin-0.5, y, Nmax+0.5, y)  # Yに垂直な線 (X軸方向に線を引く)
+        line.SetLineColor(ROOT.kGray)  # 線の色
+        line.SetLineStyle(2)           # 点線
+        line.Draw()
+        lines.append(line)
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     c1.Update()
@@ -128,7 +153,7 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
 
 if __name__ == "__main__":
     db_path = "./settings.db"
-    setting_ids = [2, 11, 12, 13, 14]  # 指定された setting_id
+    setting_ids = [16, 22, 23]  # 指定された setting_id
     isotopes_by_setting_id = fetch_isotope_data_and_symbols(db_path, setting_ids)
     
     # 最初の setting_id とそのシンボルを取得
