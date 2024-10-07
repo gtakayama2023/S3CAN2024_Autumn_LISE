@@ -44,8 +44,8 @@ def fetch_isotope_data_and_symbols(db_path, setting_ids):
     return isotopes_by_setting_id
 
 def create_nuclear_chart(isotopes_by_setting_id, output_path):
-    Nmin, Nmax = 40, 84
-    Zmin, Zmax = 35, 56
+    Nmin, Nmax = 15, 100
+    Zmin, Zmax = 15, 100
 
     c1 = ROOT.TCanvas("cNuclearChart", "Nuclear Chart (Multiple Settings)", 1200, 800)
     c1.SetLogz(1)
@@ -86,7 +86,8 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
             if yield_sum > 10000:
                 yield_normal_factor = 10000 / yield_sum
             else:
-                yield_normal_factor = 1
+                #yield_normal_factor = 1
+                yield_normal_factor = 10000 / yield_sum
 
             yield_value *= yield_normal_factor
             if yield_value > 50:
@@ -153,7 +154,14 @@ def create_nuclear_chart(isotopes_by_setting_id, output_path):
 
 if __name__ == "__main__":
     db_path = "./settings.db"
-    setting_ids = [16, 22, 23]  # 指定された setting_id
+    #setting_ids = [26, 27, 31, 33]  # 指定された setting_id
+    ## 26: 99Zr #1 Empty, 27: 95Zr Empty
+    #setting_ids = [20, 19, 28]  # 指定された setting_id
+    ## 28: 99Zr #2 Empty
+    #setting_ids = [30, 31, 33, 35, 36, 37, 40, 42, 43, 44, 27, 26, 45]  # 指定された setting_id
+    ## Empty settings ( 30: 65Ga, 31: 50V, 33: 53V, 35: 61Fe, 36: 68Ga, 37: 71Ga, 40: 64Fe, 42: 55V, 43: 91Zr, 44: 87Zr, 27: 95Zr, 26: 99Zr, 45: 103Zr)
+    setting_ids = [30, 31, 33, 35, 36, 37, 40, 42, 43, 44, 50, 26, 45]  # 指定された setting_id
+    # Empty settings ( 30: 65Ga, 31: 50V, 33: 53V, 35: 61Fe, 36: 68Ga, 37: 71Ga, 40: 64Fe, 42: 55V, 43: 91Zr, 44: 87Zr, 50: 95Zr, 26: 99Zr, 45: 103Zr)
     isotopes_by_setting_id = fetch_isotope_data_and_symbols(db_path, setting_ids)
     
     # 最初の setting_id とそのシンボルを取得
