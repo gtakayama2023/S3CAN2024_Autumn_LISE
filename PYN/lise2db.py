@@ -399,9 +399,10 @@ else:
     setting_id = result[0]
 
 # ファイルを指定されたディレクトリに保存
-output_dir = f"./LPP/BigRIPS_NoXX_136Xe_{settings['Symbol']}"
-os.makedirs(output_dir, exist_ok=True)
-output_file_path = os.path.join(output_dir, f"{setting_id}.lpp")
+#output_dir = f"./LPP/BigRIPS_No{setting_id:02d}_136Xe_{settings['Symbol']}"
+#os.makedirs(output_dir, exist_ok=True)
+#output_file_path = os.path.join(output_dir, f"{setting_id}.lpp")
+output_file_path=f"./LPP/BigRIPS_No{setting_id:02d}_136Xe_{settings['Symbol']}.lpp"
 
 # temp.lppを新しい場所にコピー
 shutil.copy("./LPP/temp.lpp", output_file_path)
@@ -488,8 +489,10 @@ for i in range(len(Isotope)):
     first_value = Isotope[i][0].split()[1]  # j = 1 の値を基準として取得
     equal_values = True  # 値が等しいかどうかのフラグ
 
-    for j in range(1, 9):  # j = 1 から 8 まで
+    #for j in range(1, 9):  # j = 1 から 8 まで
+    for j in range(3, 9):  # j = 1 から 8 まで
         if Isotope[i][0].split()[j] != first_value:
+        #if Isotope[i][0].split()[j] != Z:
             equal_values = False
             break  # 等しくない場合、ループを終了
     if isotope[i][0]/total_sum * 100 < 0.1:
