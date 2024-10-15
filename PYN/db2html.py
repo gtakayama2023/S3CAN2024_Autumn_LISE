@@ -89,7 +89,7 @@ for row in settings_data:
 
     # ファイルパスを生成
     file_path = f"BigRIPS_NoXX_136Xe_{symbol_value}/{id_value}.lpp"
-    js_path = f"http://localhost/CGI-BIN/JSROOT/TRIP/S3CAN/2024/AUTUMN/LISE/temp.pl?id={id_value}&symbol={symbol_value}"
+    js_path = f"/cgi-bin/EXP/RIBF/TRIP/2024/AUTUMN/USR/default/JSR/LISE/CGI/index.pl?setting_id={id_value}"
 
     # HTML行を追加 (個別のhtmlファイルへのリンクを追加)
     html_content += f"<tr><td><a href='BigRIPS_NoXX_136Xe_{symbol_value}/{id_value}.html'>{id_value}</a></td><td>{file_path}</td><td><a href='{js_path}'>URL</a></td>"

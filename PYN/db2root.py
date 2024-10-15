@@ -88,7 +88,8 @@ for setting_id, data in isotopes_by_setting_id.items():
     symbol = data['symbol']
 
     # ROOTファイルのパス
-    root_file_path = f"./ROOT/BigRIPS_NoXX_136Xe_{symbol}/{setting_id}.root"
+    #root_file_path = f"./ROOT/BigRIPS_NoXX_136Xe_{symbol}/{setting_id}.root"
+    root_file_path = f"./ROOT/{setting_id}.root"
     
     # ディレクトリの作成（存在しない場合）
     import os
